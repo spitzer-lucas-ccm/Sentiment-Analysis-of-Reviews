@@ -20,10 +20,9 @@ def fetch_reviews(api_key, location, term):
     response = requests.get(url, headers=headers)
     businesses = response.json()['businesses']
     reviews = []
-    num_businesses = 10
+    num_businesses = 60
     for business in businesses:
         business_id = business['alias']
-        print(business_id)
         url = f"https://api.yelp.com/v3/businesses/{business_id}/reviews?limit=20&sort_by=yelp_sort"
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
@@ -58,7 +57,6 @@ def analyze_sentiment(reviews):
         pattern_sentiments.append(pattern_sentiment)
     
     return textblob_sentiments, pattern_sentiments
-
 
 
 def visualize_results(sentiments):
@@ -99,6 +97,23 @@ def visualize_results(sentiments):
     plt.show()
 
 
+def create_wordcloud(cleaned_reviews):
+    """
+    Creates a word cloud of the 20 most common words from the cleaned reviews.
+    """
+    # Combine all cleaned reviews into a single string
+    combined_reviews = ' '.join(cleaned_reviews)
+    
+    # Generate word cloud
+    wordcloud = WordCloud(width=800, height=400, max_words=20, background_color='white').generate(combined_reviews)
+    
+    # Display the generated word cloud
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
+
+
 if __name__ == "__main__":
     # Fetch reviews
     reviews = fetch_reviews(API_KEY, "Roxbury NJ", "diners")
@@ -109,3 +124,4 @@ if __name__ == "__main__":
     
     # Visualize results
     visualize_results(textblob_sentiments)
+    create_wordcloud(cleaned_reviews)
